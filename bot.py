@@ -80,8 +80,12 @@ def home():
 def health():
     return jsonify({"status": "healthy"}), 200
 
-async def setup_webhook_async():
-    """تابع async برای تنظیم webhook"""
+async def setup_and_run():
+    """تابع اصلی برای راه‌اندازی"""
+    # ۱. Initialize کردن اپلیکیشن (حل مشکل خطای جدید)
+    await application.initialize()
+    
+    # ۲. تنظیم Webhook
     webhook_url = f"{RENDER_EXTERNAL_URL}/webhook"
     logger.info(f"در حال تنظیم webhook به آدرس: {webhook_url}")
     
@@ -93,14 +97,10 @@ async def setup_webhook_async():
     else:
         logger.error("❌ خطا در تنظیم webhook")
 
-def main():
-    # اجرای تابع async برای تنظیم webhook
-    asyncio.run(setup_webhook_async())
-    
-    # اجرای Flask server
+    # ۳. اجرای Flask server
     port = int(os.environ.get('PORT', 10000))
     logger.info(f"سرور روی پورت {port} شروع به کار کرد")
     app.run(host='0.0.0.0', port=port, debug=False)
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(setup_and_run())
